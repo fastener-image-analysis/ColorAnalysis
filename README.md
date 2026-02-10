@@ -41,3 +41,7 @@ What this will output is a table of the Blackness, Color Shift, Glossiness, medi
 ### Using a user interface
 To run all this through Stremlit UI, run `streamlit run streamlit_app.py`
 This will open a web-app that you can access through the link provided in the terminal. When you analyze an image using this method, it does not save automatically, but has options to download files as needed.
+
+## Running program online
+This repo is hosten on the Streamlit Community Cloud for access at
+https://coloranalysis-vs8xiz2jstv7uv2ckx2ygt.streamlit.app/
