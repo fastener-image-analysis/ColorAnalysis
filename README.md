@@ -8,6 +8,8 @@ The program takes in a file path to an image you want to analyze. An example of 
 Using the background as a normalization factor, the image is converted into the L* a* b* colorspace, and outputs blackness, color shift, glossiness, and median a* and b* values. 
 For the best results, the same background should be white, and the same with all the images of parts you want to compare. Parts should not be white in color at best, and should not be white at minimum.
 
+![Sample Input Image](sample_input_image.jpg)
+
 ### Equations used to determine color
 * Blackness:
 * Color Shift:
