@@ -17,3 +17,5 @@ This will then lead you to input the file path of the image you want to analyze.
 Next it will tell you to input the directory path of where you want all images and csv files of the image analysis to be stored.
 
 What this will output is a table of the Blackness, Color Shift, Glossiness, median a* and b* values, and plots representing the masking and regions for the parts. You can end the program by closing out of the plots.
+
+To run all this through Stremlit UI, run 'streamlit run streamlit_app.py'
