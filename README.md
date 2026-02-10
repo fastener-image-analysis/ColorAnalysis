@@ -4,12 +4,22 @@ This purpose of this program is to analyze various images of fasteners such as b
 Future additions will include corrosion analysis through color analysis of red and white corrosion compared to the rest of the part.
 
 ## How it works currently
-It is currently an ipynb file that takes in an image called 'substrate_image.jpg' and masks out all the individual parts that are in the image based on the contrast difference. It then normalizes it against the background in the L a b color space, calculating the difference in the L value to present a value for blackness. Larger magnitudes of 'blackness' indicate a more black part. To be added are color shift representations and glossiness
+The program takes in a file path to an image you want to analyze. An example of a valid image can be seen below. It will then seperate out all the detected parts from the background by a grayscale threshold as well as edge recognition. 
+Using the background as a normalization factor, the image is converted into the L* a* b* colorspace, and outputs blackness, color shift, glossiness, and median a* and b* values. 
+For the best results, the same background should be white, and the same with all the images of parts you want to compare. Parts should not be white in color at best, and should not be white at minimum.
+
+### Equations used to determine color
+* Blackness:
+* Color Shift:
+* Glossiness:
+* Median a*:
+* Median b*:
 
 ## Running program in command line
 Make sure you have python installed on your device, and you have all the required packages.
 You can view the required packages in the `requirements.txt` file, and you can install them through a bash script by running `bash install.sh`
 
+### Entirely in command line
 In order to run image analysis on a certain image, you will want to navigate to the ColorAnalysis directory, and then run `python app.py`
 
 This will then lead you to input the file path of the image you want to analyze. The base folder that it is in currently is the ColorAnalysis directory.
@@ -18,4 +28,6 @@ Next it will tell you to input the directory path of where you want all images a
 
 What this will output is a table of the Blackness, Color Shift, Glossiness, median a* and b* values, and plots representing the masking and regions for the parts. You can end the program by closing out of the plots.
 
+### Using a user interface
 To run all this through Stremlit UI, run `streamlit run streamlit_app.py`
+This will open a web-app that you can access through the link provided in the terminal. When you analyze an image using this method, it does not save automatically, but has options to download files as needed.
