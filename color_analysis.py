@@ -31,6 +31,21 @@ def compute_metrics(normalized_parts):
         a_shift.append(np.mean(a_norm))
         b_shift.append(np.mean(b_norm))
         high_L = np.percentile(L_norm, 95)
-        gloss.append(np.mean(L_norm > high_L))
+        highlight_mask = L_norm > high_L
+
+        # Fraction of highlight pixels
+        fraction = np.mean(highlight_mask)
+
+        if np.any(highlight_mask):
+            # Mean intensity of highlight pixels
+            intensity = np.mean(L_norm[highlight_mask])
+        else:
+            intensity = 0
+
+        # Combined gloss score (recommended)
+        gloss_score = fraction * intensity
+
+        gloss.append(gloss_score)
+
 
     return blackness, color_shift, a_shift, b_shift, gloss

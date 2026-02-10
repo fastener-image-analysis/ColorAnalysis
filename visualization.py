@@ -81,7 +81,12 @@ def show_numbered_parts(substrate, part_masks, save_path=None):
     plt.close(fig)
 
 
-def save_numbered_parts_with_metrics(substrate, part_masks, blackness, filename):
+def save_numbered_parts_with_metrics(substrate, part_masks, blackness, file_or_buffer):
+    """
+    file_or_buffer:
+        - CLI: a filename string
+        - Streamlit: a BytesIO buffer
+    """
     combined = np.zeros_like(part_masks[0], dtype=int)
     for i, pm in enumerate(part_masks):
         combined[pm] = i + 1
@@ -102,7 +107,12 @@ def save_numbered_parts_with_metrics(substrate, part_masks, blackness, filename)
         )
 
     plt.title("Numbered Parts (saved)")
-    fig.savefig(filename, dpi=300, bbox_inches="tight")
+
+    if isinstance(file_or_buffer, str):
+        fig.savefig(file_or_buffer, dpi=300, bbox_inches="tight")
+    else:
+        fig.savefig(file_or_buffer, format="jpg", dpi=300, bbox_inches="tight")
+
     plt.close(fig)
 
 
@@ -114,7 +124,8 @@ def show_combined_results(
     part_masks,
     background_mask,
     holder_mask,
-    save_path=None
+    save_path=None,
+    return_fig=False,
 ):
     combined = np.zeros_like(part_masks[0], dtype=int)
     for i, pm in enumerate(part_masks):
@@ -124,18 +135,25 @@ def show_combined_results(
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     ax0, ax1, ax2, ax3, ax4, ax5 = axes.ravel()
 
+    # Original
     ax0.imshow(substrate)
     ax0.set_title("Original")
     ax0.axis("off")
 
+    # Histogram
     ax1.hist(gray.ravel(), bins=256)
-    ax1.axvline(thresh, color="r", linestyle="--")
+
+    # Only draw threshold line if thresh is a real number
+    if thresh is not None and not np.isnan(thresh):
+        ax1.axvline(thresh, color="r", linestyle="--")
     ax1.set_title("Histogram + Threshold")
 
+    # Binary mask
     ax2.imshow(binary, cmap="gray")
     ax2.set_title("Binary Mask")
     ax2.axis("off")
 
+    # Parts overlay
     mask_combined = np.zeros(part_masks[0].shape, dtype=bool)
     for m in part_masks:
         mask_combined |= m
@@ -144,12 +162,14 @@ def show_combined_results(
     ax3.set_title("Parts Overlay")
     ax3.axis("off")
 
+    # Background + holder
     ax4.imshow(substrate)
     ax4.imshow(background_mask, cmap="Greens", alpha=0.4)
     ax4.imshow(holder_mask, cmap="Reds", alpha=0.4)
-    ax4.set_title("Background (green) + Exclusion (red)")
+    ax4.set_title("Background (green) + Excluded (red)")
     ax4.axis("off")
 
+    # Numbered parts
     ax5.imshow(substrate)
     for i, region in enumerate(regions):
         y, x = region.centroid
@@ -166,5 +186,7 @@ def show_combined_results(
 
     save_plot(fig, save_path)
 
-    # Show blocking so it stays open
-    plt.show()
+    if return_fig:
+        return fig
+
+    plt.close(fig)
