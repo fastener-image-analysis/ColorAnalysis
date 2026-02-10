@@ -19,11 +19,11 @@ For the best results, the same background should be white, and the same with all
 
 ## Requirements
 This program utilizes python and the following packages
-*numpy
-*matplotlib
-*pandas
-*scikit-image
-*streamlit
+* numpy
+* matplotlib
+* pandas
+* scikit-image
+* streamlit
 
 ## Running program in command line
 Make sure you have python installed on your device, and you have all the required packages.
