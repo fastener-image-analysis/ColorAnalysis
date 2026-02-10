@@ -18,4 +18,4 @@ Next it will tell you to input the directory path of where you want all images a
 
 What this will output is a table of the Blackness, Color Shift, Glossiness, median a* and b* values, and plots representing the masking and regions for the parts. You can end the program by closing out of the plots.
 
-To run all this through Stremlit UI, run 'streamlit run streamlit_app.py'
+To run all this through Stremlit UI, run `streamlit run streamlit_app.py`
