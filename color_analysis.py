@@ -3,11 +3,33 @@ from skimage.color import rgb2lab
 
 
 def convert_to_lab(substrate):
+    """
+    Convert the input RGB image to LAB color space and return the L, a, b channels separately.
+    INPUTS:
+    substrate (numpy array): the input RGB image as a numpy array
+    OUTPUTS:
+    L (numpy array): the L channel of the LAB color space
+    a (numpy array): the a channel of the LAB color space
+    b (numpy array): the b channel of the LAB color space
+    """
     lab = rgb2lab(substrate)
     return lab[..., 0], lab[..., 1], lab[..., 2]
 
 
 def normalize_parts(L, a, b, background_mask, part_masks):
+    """
+    Normalize the L, a, b values of the parts by subtracting the median L, a, b values of the background.
+    This helps to account for variations in lighting and color across the substrate.
+    INPUTS:
+    L (numpy array): the L channel of the LAB color space
+    a (numpy array): the a channel of the LAB color space
+    b (numpy array): the b channel of the LAB color space
+    background_mask (numpy array): a binary mask where True indicates background pixels
+    part_masks (list of numpy arrays): a list of binary masks corresponding to the detected parts
+    OUTPUTS:
+    normalized_parts (list of tuples): a list where each element is a tuple containing the normalized
+    L, a, b values for the corresponding part mask in part_masks
+    """
     L_ref = np.median(L[background_mask])
     a_ref = np.median(a[background_mask])
     b_ref = np.median(b[background_mask])
@@ -19,6 +41,25 @@ def normalize_parts(L, a, b, background_mask, part_masks):
 
 
 def compute_metrics(normalized_parts):
+    """
+    Compute color and gloss metrics for each part based on the normalized L, a, b values.
+    The metrics include:
+    - Blackness: the 10th percentile of the normalized L values (lower is black
+    - Color Shift: the mean distance in a-b space from the origin (higher is more color shift)
+    - a Shift: the mean of the normalized a values (positive is more red, negative is more green)
+    - b Shift: the mean of the normalized b values (positive is more yellow, negative is more blue)
+    - Gloss: a combined metric based on the fraction of highlight pixels and their
+    intensity, where highlight pixels are defined as those with normalized L values above the 95th percentile (higher is glossier)
+    INPUTS:
+    normalized_parts (list of tuples): a list where each element is a tuple containing the normalized
+    L, a, b values for the corresponding part mask in part_masks
+    OUTPUTS:
+    blackness (list): a list of blackness values for each part
+    color_shift (list): a list of color shift values for each part
+    a_shift (list): a list of a shift values for each part
+    b_shift (list): a list of b shift values for each part
+    gloss (list): a list of gloss values for each part
+    """
     blackness = []
     color_shift = []
     a_shift = []

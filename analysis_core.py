@@ -22,35 +22,45 @@ from visualization import (
 
 
 def analyze_image_core(image_input, output_dir=None, return_fig=True):
-
-    # 1. Load image
+    """
+    Core function to analyze the input image and produce the results table, combined figure, and annotated image buffer.
+    INPUTS:
+    image_input (str or numpy array): the input image, either as a file path or a numpy array
+    output_dir (str, optional): the directory where the combined figure will be saved. If None, the combined figure will not be saved. Default is None.
+    return_fig (bool, optional): whether to return the combined figure object. Default is True.
+    OUTPUTS:
+    df (pandas DataFrame): a DataFrame containing the computed metrics for each part
+    fig (matplotlib Figure, optional): the combined figure showing the original image, thresholding results, part masks, background/holder masks, and numbered parts. Only returned if return_fig is True.
+    annotated_buf (BytesIO): a BytesIO buffer containing the annotated image with numbered parts, which can be saved or displayed as needed
+    """
+    # Load image
     substrate = load_image(image_input)
 
-    # 2. Segmentation
+    # Segmentation
     gray, binary, thresh = threshold_parts(substrate)
 
-    # 3. Extract bolt regions
+    # Extract bolt regions
     labels, regions = extract_part_regions(binary, min_area=3000)
     regions_sorted = sort_regions_left_to_right(regions)
     part_masks = regions_to_masks(labels, regions_sorted)
 
-    # 4. Background + holder
+    # Background + holder
     background_mask, holder_mask = compute_background_and_holder_masks(
         gray,
         part_masks
     )
 
-    # 5. Lab conversion + normalization
+    # Lab conversion + normalization
     L, a, b = convert_to_lab(substrate)
     normalized = normalize_parts(L, a, b, background_mask, part_masks)
 
-    # 6. Metrics
+    # Metrics
     blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(normalized)
 
-    # 7. Table
+    # Table
     df = build_results_table(blackness, color_shift, gloss, a_shift, b_shift)
 
-    # 8. Combined figure
+    # Combined figure
     combined_save_path = None
     if output_dir is not None:
         combined_save_path = os.path.join(output_dir, "combined.png")
@@ -67,7 +77,7 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
         return_fig=True
     )
 
-    # 9. Annotated image buffer
+    # Annotated image buffer. Purpose is to allow Streamlit to display the annotated image without needing to save it to disk first.
     annotated_buf = io.BytesIO()
     save_numbered_parts_with_metrics(substrate, part_masks, blackness, annotated_buf)
     annotated_buf.seek(0)
