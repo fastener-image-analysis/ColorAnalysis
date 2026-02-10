@@ -17,6 +17,14 @@ For the best results, the same background should be white, and the same with all
 * Median a*:
 * Median b*:
 
+## Requirements
+This program utilizes python and the following packages
+*numpy
+*matplotlib
+*pandas
+*scikit-image
+*streamlit
+
 ## Running program in command line
 Make sure you have python installed on your device, and you have all the required packages.
 You can view the required packages in the `requirements.txt` file, and you can install them through a bash script by running `bash install.sh`
