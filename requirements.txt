@@ -4,4 +4,3 @@ pandas
 scikit-image
 streamlit
 altair==4.2.2
-imghdr
