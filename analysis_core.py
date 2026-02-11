@@ -9,7 +9,7 @@ from segmentation import (
     regions_to_masks,
 )
 from background import compute_background_and_holder_masks
-from color_analysis import convert_to_lab, normalize_parts, compute_metrics
+from color_analysis import convert_to_lab, normalize_parts, compute_metrics, get_normalized_lab_diff
 from table_builder import build_results_table
 from visualization import (
     show_threshold_visualization,
@@ -51,7 +51,8 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
     )
 
     # Lab conversion + normalization
-    L, a, b = convert_to_lab(substrate)
+    # L, a, b = convert_to_lab(substrate)
+    L, a, b = get_normalized_lab_diff(substrate, background_mask)
     normalized = normalize_parts(L, a, b, background_mask, part_masks)
 
     # Metrics

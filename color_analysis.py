@@ -1,5 +1,17 @@
 import numpy as np
 from skimage.color import rgb2lab
+from skimage.color import rgb2xyz, xyz2lab
+
+def get_normalized_lab_diff(substrate, background_mask):
+    img = substrate / 255.0
+    img_linear = rgb2xyz(img)
+    current_bg_xyz = img_linear[background_mask].mean(axis=0)
+    anchor_xyz = np.array([0.5, 0.5, 0.5])
+
+    scaling_factor = anchor_xyz / current_bg_xyz
+    img_normalized = img_linear * scaling_factor
+    img_lab = xyz2lab(img_normalized)
+    return img_lab[..., 0], img_lab[..., 1], img_lab[..., 2]
 
 
 def convert_to_lab(substrate):
