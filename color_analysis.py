@@ -1,18 +1,30 @@
 import numpy as np
 from skimage.color import rgb2lab
 from skimage.color import rgb2xyz, xyz2lab
+from skimage import color, exposure
 
-def get_normalized_lab_diff(substrate, background_mask):
-    img = substrate / 255.0
-    img_linear = rgb2xyz(img)
-    current_bg_xyz = img_linear[background_mask].mean(axis=0)
-    anchor_xyz = np.array([0.5, 0.5, 0.5])
+def normalize_from_bg(substrate, bg_mask):
+    img = srgb_to_linear(substrate)
+    bg_pixels = img[bg_mask]
+    if np.any(bg_pixels.max(axis=0) > 0.98):
+        print('Warning: Background may be clipping!')
+    bg_mean = bg_pixels.mean(axis=0)
+    correction = 1.0 / bg_mean
+    img_normalized = np.clip(img * correction[None, None, :], 0, 1)
+    img_normalized = linear_to_srgb(img_normalized)
+    return(img_normalized)
 
-    scaling_factor = anchor_xyz / current_bg_xyz
-    img_normalized = img_linear * scaling_factor
-    img_lab = xyz2lab(img_normalized)
-    return img_lab[..., 0], img_lab[..., 1], img_lab[..., 2]
+def srgb_to_linear(img):
+    """Convert sRGB to linear RGB"""
+    return np.where(img <= 0.04045,
+                    img / 12.92, 
+                    ((img + 0.055) / 1.055) ** 2.4)
 
+def linear_to_srgb(img):
+    """Convert linear RGB back to sRGB"""
+    return np.where(img <= 0.0031308,
+                    img * 12.92,
+                    1.055 * img ** (1/2.4) - 0.055)
 
 def convert_to_lab(substrate):
     """
@@ -26,6 +38,12 @@ def convert_to_lab(substrate):
     """
     lab = rgb2lab(substrate)
     return lab[..., 0], lab[..., 1], lab[..., 2]
+
+def get_lab_parts(L, a, b, part_masks):
+    part_lab = []
+    for m in part_masks:
+        part_lab.append((L[m], a[m], b[m]))
+    return part_lab
 
 
 def normalize_parts(L, a, b, background_mask, part_masks):

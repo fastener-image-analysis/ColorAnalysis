@@ -26,6 +26,7 @@ def compute_background_and_holder_masks(gray, part_masks):
 
     # Background = bright pixels, using 70th percentile to exclude outliers
     bg_thresh = np.nanpercentile(gray_no_parts, 70)
+    print(f'bgthresh: {bg_thresh}')
     background_mask = gray_no_parts > bg_thresh
 
     # Holder = largest dark region, using 30th percentile to exclude outliers

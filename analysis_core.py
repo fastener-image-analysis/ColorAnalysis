@@ -9,7 +9,7 @@ from segmentation import (
     regions_to_masks,
 )
 from background import compute_background_and_holder_masks
-from color_analysis import convert_to_lab, normalize_parts, compute_metrics, get_normalized_lab_diff
+from color_analysis import convert_to_lab, normalize_parts, compute_metrics, normalize_from_bg, get_lab_parts, srgb_to_linear, linear_to_srgb
 from table_builder import build_results_table
 from visualization import (
     show_threshold_visualization,
@@ -51,12 +51,13 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
     )
 
     # Lab conversion + normalization
-    # L, a, b = convert_to_lab(substrate)
-    L, a, b = get_normalized_lab_diff(substrate, background_mask)
-    normalized = normalize_parts(L, a, b, background_mask, part_masks)
+    normalized_image = normalize_from_bg(substrate, background_mask)
+    L, a, b = convert_to_lab(normalized_image)
+
+    part_lab_colors = get_lab_parts(L, a, b, part_masks)
 
     # Metrics
-    blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(normalized)
+    blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(part_lab_colors)
 
     # Table
     df = build_results_table(blackness, color_shift, gloss, a_shift, b_shift)

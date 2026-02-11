@@ -9,4 +9,4 @@ def load_image(filename):
     OUTPUTS:
     image (numpy array): the loaded image as a numpy array
     """
-    return ski.io.imread(filename)
+    return ski.io.imread(filename).astype(float) / 255.0
