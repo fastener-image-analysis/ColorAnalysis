@@ -59,7 +59,7 @@ def show_results(
     ax3.axis('off')
 
     #Background mask
-    ax3.imshow(image)
+    ax4.imshow(image)
     ax4.imshow(bg_mask, cmap='Greens', alpha=0.4)
     ax4.set_title('Background (green)')
     ax4.axis('off')
