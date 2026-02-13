@@ -8,29 +8,33 @@ from segmentation import (
     extract_part_regions,
     sort_regions_l2r,
     regions_to_masks,
-    compute_background
+    compute_background,
+    threshold_card,
+    largest_region_mask
 )
 from color_processing import (
     convert_to_lab,
     lab_normalize_from_bg,
     linear_normalize_from_bg,
     get_lab_parts,
-    compute_metrics
+    compute_metrics,
+    normalize_from_gray_card
 )
 from visualization import show_results, save_numbered_parts_with_metrics
 
 def analyze_image_core(image_input, output_dir=None, return_fig=True):
     img = load_image(image_input)
-
-    gray, binary, thresh = threshold_parts(img)
+    gray_card, binary_card = threshold_card(img)
+    card_mask = largest_region_mask(binary_card)
+    gray, binary, thresh = threshold_parts(img, card_mask)
 
     labels, regions = extract_part_regions(binary, min_area=3000)
     regions_sorted = sort_regions_l2r(regions)
     part_masks = regions_to_masks(labels, regions_sorted)
     
     bg_mask = compute_background(gray, part_masks)
-    
-    norm_img = linear_normalize_from_bg(img, bg_mask)
+    norm_img = normalize_from_gray_card(img, card_mask)
+    #norm_img = linear_normalize_from_bg(img, bg_mask)
     
     L, a, b = convert_to_lab(norm_img)
 
@@ -51,6 +55,8 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
         binary,
         part_masks,
         bg_mask,
+        card_mask,
+        binary_card,
         save_path=combined_save_path,
         return_fig=True
     )

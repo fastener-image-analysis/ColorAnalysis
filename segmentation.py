@@ -1,12 +1,34 @@
 from skimage.color import rgb2gray
 import numpy as np
-from skimage.morphology import dilation, disk, remove_small_holes, binary_closing
+from skimage.morphology import dilation, disk, remove_small_holes, binary_closing, remove_small_objects
 from skimage.feature import canny
 from skimage.measure import label, regionprops
 from scipy.ndimage import binary_fill_holes
+from skimage import filters
 
-def threshold_parts(image):
+def threshold_card(image):
+    print('Determining threshold for gray card')
     gray = rgb2gray(image)
+    thresholds = filters.threshold_multiotsu(gray, classes=3)
+    regions = np.digitize(gray, bins=thresholds)
+    binary = (regions == 1)
+    return gray, binary
+
+def largest_region_mask(binary_mask):
+    """Return a boolean mask containing only the largest connected component."""
+    labeled = label(binary_mask)                      # integer labels, 0 = background
+    if labeled.max() == 0:
+        print('No gray card regions found')
+        return np.zeros_like(binary_mask, dtype=bool) # no regions found
+    props = regionprops(labeled)
+    # find label with max area
+    largest = max(props, key=lambda p: p.area)
+    return labeled == largest.label
+
+def threshold_parts(image, card_mask):
+    gray_dirty = rgb2gray(image)
+    gray = gray_dirty.copy()
+    gray[card_mask] = 1.0
     coarse_thresh = np.percentile(gray, 60)
     coarse_mask = gray < coarse_thresh
     coarse_mask = dilation(coarse_mask, disk(6)) # what does dilation do?
@@ -17,8 +39,10 @@ def threshold_parts(image):
     closed = binary_closing(edges_dilated, disk(4))
 
     filled = binary_fill_holes(closed & coarse_mask)
+    card_exclusion_zone = dilation(card_mask, disk(10))
+    filled = filled & ~card_exclusion_zone
     filled = remove_small_holes(filled, area_threshold=3000)
-
+    filled = remove_small_objects(filled, min_size=500)
     binary = filled
     return gray, binary, coarse_thresh
 

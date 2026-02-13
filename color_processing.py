@@ -11,6 +11,18 @@ def linear_normalize_from_bg(image, bg_mask):
     image_normalized = linear_to_srgb(image_normalized)
     return(image_normalized)
 
+def normalize_from_gray_card(image, card_mask):
+    image = srgb_to_linear(image)
+    card_pixels = image[card_mask]
+    card_mean = card_pixels.mean(axis=0)
+    print(f'current card mean is: {card_mean}')
+    correction = 0.215 / card_mean
+    image_normalized = np.clip(image * correction[None, None,:], 0, 1)
+    image_normalized = linear_to_srgb(image_normalized)
+    return(image_normalized)
+
+import numpy as np
+
 def convert_to_lab(image):
     lab = rgb2lab(image)
     return lab[..., 0], lab[..., 1], lab[..., 2]
