@@ -3,6 +3,14 @@ from skimage.color import rgb2lab
 from utils import linear_to_srgb, srgb_to_linear
 
 def linear_normalize_from_bg(image, bg_mask):
+    """
+    Normalize an image by dividing all color parameters of pixels in the image by the mean value of the background
+    INPUTS:
+    image (numpy Array): A numpy array representing the image to be analyzed
+    bg_mask (bool NumPy Array): A numpy array containing bools that act as the mask for the background
+    OUTPUTS:
+    image_normalized (numpy Array): A numpy array with all the pixels normalized to the background
+    """
     image = srgb_to_linear(image)
     bg_pixels = image[bg_mask]
     bg_mean = bg_pixels.mean(axis=0)
@@ -12,15 +20,47 @@ def linear_normalize_from_bg(image, bg_mask):
     return(image_normalized)
 
 def convert_to_lab(image):
+    """
+    Takes in an image and returns it as the lab components L, a* and b* for each pixel in the image
+    INPUTS:
+    image (numpy Array): A numpy array representing the image to be analyzed
+    OUTPUTS:
+    L (numpy Array): A numpy array consisting of the L value of each pixel
+    a (numpy Array): A numpy array consisting of the a value of each pixel
+    b (numpy Array): A numpy array consisting of the b value of each pixel
+    """
     lab = rgb2lab(image)
     return lab[..., 0], lab[..., 1], lab[..., 2]
 
 def get_lab_parts(L, a, b, part_masks):
+    """
+    Takes in the L, a, b of the whole image and the masks of all the parts and divides the L a and b values to each part respectively
+    INPUTS:
+    L (numpy Array): A numpy array consisting of the L value of each pixel of the whole image
+    a (numpy Array): A numpy array consisting of the a value of each pixel of the whole image
+    b (numpy Array): A numpy array consisting of the b value of each pixel of the whole image
+    part_masks (bool numpy Array): list containing a numpy array consisting of bools that act as the mask for each of the parts
+    OUTPUTS:
+    part_lab (list): A list containing tuples of arrays that represent the L, a, and b values of each pixel of each part
+
+    """
     part_lab = []
     for pm in part_masks:
         part_lab.append((L[pm], a[pm], b[pm]))
+    return part_lab
 
 def lab_normalize_from_bg(L, a, b, bg_mask, part_masks):
+    """
+    Normalize in the Lab color space the L a and b values of the part by taking the difference with respect to the L a and b value of the background
+    INPUTS:
+    L (numpy Array): A numpy array consisting of the L value of each pixel of the whole image
+    a (numpy Array): A numpy array consisting of the a value of each pixel of the whole image
+    b (numpy Array): A numpy array consisting of the b value of each pixel of the whole image
+    bg_mask (bool NumPy Array): A numpy array containing bools that act as the mask for the background
+    part_masks (bool numpy Array): list containing a numpy array consisting of bools that act as the mask for each of the parts
+    OUTPUTS:
+    normalized (list): A list containing tuples of arrays that represent the L, a, and b values of each pixel of each part but normalized
+    """
     L_ref = np.median(L[bg_mask])
     a_ref = np.median(a[bg_mask])
     b_ref = np.median(b[bg_mask])
@@ -31,6 +71,17 @@ def lab_normalize_from_bg(L, a, b, bg_mask, part_masks):
     return normalized
 
 def compute_metrics(normalized_parts):
+    """
+    Computes the relevent responses from primary analysis form a list of parts with L a and b values dedicated to each
+    INPUTS:
+    normalized_parts (list): A list containing tuples of arrays that represent the L, a, and b values of each pixel of each part but normalized
+    OUTPUTS:
+    blackness (list): A list of calculated blackness values for each part
+    color_shift (list): A list of calculated color shift values for each part
+    a_shift (list): A list of calculated median a shift values for each part
+    b_shift (list): A list of calculated median b shift values for each part
+    gloss (list): A list of calculated gloss score values for each part
+    """
     blackness = []
     color_shift = []
     a_shift = []

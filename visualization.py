@@ -16,6 +16,17 @@ def show_results(
         save_path = None,
         return_fig = False
 ):
+    """
+    Shows a figure that consists of plots that visualize the masking, thresholding, and part assignments throughout the analysis.
+    INPUTS:
+    image: the starting image of analysis
+    gray: the grayscale image of analysis
+    thresh: the threshold used for background determination
+    binary: the binary mask of the parts
+    part_masks: a list of masks representing the parts
+    save_path (str): location where the figure should be saved
+    return_fig: Where to return the figure or not
+    """
     combined = np.zeros_like(part_masks[0], dtype=int)
     for i, pm in enumerate(part_masks):
         combined[pm] = i + 1

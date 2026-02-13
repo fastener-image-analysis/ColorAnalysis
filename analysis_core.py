@@ -20,6 +20,19 @@ from color_processing import (
 from visualization import show_results, save_numbered_parts_with_metrics
 
 def analyze_image_core(image_input, output_dir=None, return_fig=True):
+    """
+    Core analysis code to take an image input and output the processing timeline as well as
+    response variables for the color of parts within the image. To be used by any access method.
+    INPUTS:
+    image_input (str): file path of the image to be analyzed
+    output_dir (str): directory path to where files will be stored if desired
+    return_fig (bool): to return a annotated image or not.
+
+    OUTPUTS:
+    df (pandas DataFrame): a dataframe of all the response variables
+    fig (plt Plot): a plot showing relevant graphs of the image analysis timeline
+    annotated_buf: a buffer in order for streamlit to download an image.
+    """
     img = load_image(image_input)
 
     gray, binary, thresh = threshold_parts(img)
