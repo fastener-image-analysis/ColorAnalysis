@@ -10,12 +10,12 @@ For the best results, the same background should be white, and the same with all
 
 ![Sample Input Image](sample_input_image.jpg)
 
-### Equations used to determine color
-* Blackness:
-* Color Shift:
-* Glossiness:
-* Median a*:
-* Median b*:
+### Calculations used to determine color
+* Blackness: The 10th percentile of the overall pixel L values on the part excluding specular highlights subtracted by the median L value of the background
+* Color Shift: The euclidean mean of a* and b* values subtracted by the median a and b values of the background
+* Glossiness: The fraction of the part that is highlights over the fraction of the part that is shadows determined by the 95th percentile of the L value. Combined with the mean value of the highlights to get a gloss score that encapsulates both intensity and gloss fraction.
+* Median a*: Median value of a* across all pixels on the part
+* Median b*: Median value of b* across all pixels on the part
 
 ## Requirements
 This program utilizes python and the following packages
@@ -24,6 +24,12 @@ This program utilizes python and the following packages
 * pandas
 * scikit-image
 * streamlit
+
+## What images work with it
+This program works with JPG, JPEG, and PNG files.
+For the best comparison of blackness, parts that are taken in the same conditions (light box, lighting, and camera settings) should be used as a difference in any of these factors will impact the normalization of the image, thus artifically changing the color provided. The lightbox should be the same throughout as the program assumes the background should be the same for every photo and uses it as a baseline to color correct each image.
+
+Photos should be shot in Manual mode, specifically manual exposure settings and white balancing, as modern cameras will adjust the colors individually behind the scenes in a non-linear way to make them more accurate to the eye that is difficult to fix without more information.
 
 ## Running program in command line
 Make sure you have python installed on your device, and you have all the required packages.
