@@ -13,43 +13,29 @@ def show_results(
         binary,
         part_masks,
         bg_mask,
-        save_path = None,
-        return_fig = False
+        save_path=None,
+        return_fig=False
 ):
-    """
-    Shows a figure that consists of plots that visualize the masking, thresholding, and part assignments throughout the analysis.
-    INPUTS:
-    image: the starting image of analysis
-    gray: the grayscale image of analysis
-    thresh: the threshold used for background determination
-    binary: the binary mask of the parts
-    part_masks: a list of masks representing the parts
-    save_path (str): location where the figure should be saved
-    return_fig: Where to return the figure or not
-    """
     combined = np.zeros_like(part_masks[0], dtype=int)
     for i, pm in enumerate(part_masks):
         combined[pm] = i + 1
     regions = regionprops(combined)
+    del combined  # prevent regionprops memory retention
 
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     ax0, ax1, ax2, ax3, ax4, ax5 = axes.ravel()
 
-    # Original image
     ax0.imshow(image)
     ax0.set_title("Original")
     ax0.axis('off')
 
-    # Histogram
     ax1.hist(gray.ravel(), bins=256)
     ax1.set_title('Histogram')
 
-    # Binary part mask
     ax2.imshow(binary, cmap='gray')
     ax2.set_title('Binary Part Mask')
-    ax2.axis=('off')
+    ax2.axis('off')  # FIXED
 
-    # Parts overlay
     mask_combined = np.zeros(part_masks[0].shape, dtype=bool)
     for pm in part_masks:
         mask_combined |= pm
@@ -57,14 +43,13 @@ def show_results(
     ax3.imshow(mask_combined, cmap='jet', alpha=0.4)
     ax3.set_title('Parts Overlay')
     ax3.axis('off')
+    del mask_combined
 
-    #Background mask
     ax4.imshow(image)
     ax4.imshow(bg_mask, cmap='Greens', alpha=0.4)
     ax4.set_title('Background (green)')
     ax4.axis('off')
 
-    # numbered parts
     ax5.imshow(image)
     for i, region in enumerate(regions):
         y, x = region.centroid
@@ -78,36 +63,34 @@ def show_results(
     ax5.axis('off')
 
     plt.tight_layout()
+
     if return_fig:
         return fig
+
     plt.close(fig)
 
 def save_numbered_parts_with_metrics(substrate, part_masks, blackness, file_or_buffer):
-    """
-    file_or_buffer:
-        - CLI: a filename string
-        - Streamlit: a BytesIO buffer
-    """
     combined = np.zeros_like(part_masks[0], dtype=int)
     for i, pm in enumerate(part_masks):
         combined[pm] = i + 1
 
     regions = regionprops(combined)
+    del combined  # prevent memory retention
 
-    fig = plt.figure(figsize=(6, 6))
-    plt.imshow(substrate)
-    plt.axis("off")
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.imshow(substrate)
+    ax.axis("off")
 
     for i, region in enumerate(regions):
         y, x = region.centroid
-        plt.text(
+        ax.text(
             x, y, f"{i+1}",
             color="yellow", fontsize=14, weight="bold",
             ha="center", va="center",
             bbox=dict(facecolor="black", alpha=0.5, pad=2)
         )
 
-    plt.title("Numbered Parts (saved)")
+    ax.set_title("Numbered Parts (saved)")
 
     if isinstance(file_or_buffer, str):
         fig.savefig(file_or_buffer, dpi=300, bbox_inches="tight")
