@@ -18,8 +18,8 @@ def threshold_parts(image):
     gray = rgb2gray(image)
     coarse_thresh = np.percentile(gray, 60)
     coarse_mask = gray < coarse_thresh
-    coarse_mask = dilation(coarse_mask, disk(6)) # what does dilation do?
-    edges = canny(gray, sigma=2) # what does sigma do?
+    coarse_mask = dilation(coarse_mask, disk(6))
+    edges = canny(gray, sigma=2)
     edges = edges & coarse_mask
 
     edges_dilated = dilation(edges, disk(2))
@@ -41,11 +41,11 @@ def extract_part_regions(binary_mask, min_area=5000):
     labels (list): the labels that represent each part
     part_regions (): The regions that each part lies in
     """
-    labels = label(binary_mask) # determine what a label actually does
+    labels = label(binary_mask)
     regions = regionprops(labels)
     part_regions = []
     for r in regions:
-        minr, minc, maxr, maxc = r.bbox # what does bbox do
+        minr, minc, maxr, maxc = r.bbox
 
         if maxr >= binary_mask.shape[0] - 5:
             continue
