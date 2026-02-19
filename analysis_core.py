@@ -48,9 +48,10 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
     
     L, a, b = convert_to_lab(norm_img)
 
-    lab_norm_parts = lab_normalize_from_bg(L, a, b, bg_mask, part_masks)
+    #lab_norm_parts = lab_normalize_from_bg(L, a, b, bg_mask, part_masks) -- removed as it increases error
+    lab_parts = get_lab_parts(L, a, b, part_masks) # in use instead of lab_norm_parts
 
-    blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(lab_norm_parts)
+    blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(lab_parts)
 
     df = build_results_table(blackness, color_shift, a_shift, b_shift, gloss)
 
@@ -71,12 +72,12 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
     annotated_buf = io.BytesIO()
     save_numbered_parts_with_metrics(img, part_masks, blackness, annotated_buf)
     annotated_buf.seek(0)
-    # --- FREE LARGE ARRAYS BEFORE RETURN ---
+
     to_delete = [
         'img', 'gray', 'binary', 'thresh',
         'labels', 'regions', 'regions_sorted',
         'part_masks', 'bg_mask', 'norm_img',
-        'L', 'a', 'b', 'lab_norm_parts',
+        'L', 'a', 'b', 'lab_parts',
         'blackness', 'color_shift', 'a_shift', 'b_shift', 'gloss'
     ]
 
@@ -100,15 +101,17 @@ def analyze_image_core_batch(image_input):
     part_masks = regions_to_masks(labels, regions_sorted)
     bg_mask = compute_background(gray, part_masks)
     norm_img = linear_normalize_from_bg(img, bg_mask)
-    L, a, b = convert_to_lab(norm_img)
-    lab_norm_parts = lab_normalize_from_bg(L, a, b, bg_mask, part_masks)
-    blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(lab_norm_parts)
+    L, a, b = convert_to_lab(img)
+    #lab_parts = lab_normalize_from_bg(L, a, b, bg_mask, part_masks) -- removed as it increases error
+    lab_parts = get_lab_parts(L, a, b, part_masks) # in use instead of lab_norm_parts
+    blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(lab_parts)
     df = build_results_table(blackness, color_shift, a_shift, b_shift, gloss)
 
     # free big arrays before returning
     del img, gray, binary, thresh
     del labels, regions, regions_sorted, part_masks, bg_mask
-    del norm_img, L, a, b, lab_norm_parts
+    del L, a, b, lab_parts
+    del norm_img
     del blackness, color_shift, a_shift, b_shift, gloss
     gc.collect()
 
