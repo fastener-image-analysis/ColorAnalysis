@@ -10,4 +10,4 @@ RUN uv sync --locked
 
 EXPOSE 8501
 
-CMD ["uv", "run", "streamlit", "run", "src/app.py"]
+CMD ["uv", "run", "streamlit", "run", "src/color-analysis/app.py"]
