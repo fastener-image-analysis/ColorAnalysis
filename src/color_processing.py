@@ -49,27 +49,6 @@ def get_lab_parts(L, a, b, part_masks):
         part_lab.append((L[pm], a[pm], b[pm]))
     return part_lab
 
-def lab_normalize_from_bg(L, a, b, bg_mask, part_masks):
-    """
-    Normalize in the Lab color space the L a and b values of the part by taking the difference with respect to the L a and b value of the background
-    INPUTS:
-    L (numpy Array): A numpy array consisting of the L value of each pixel of the whole image
-    a (numpy Array): A numpy array consisting of the a value of each pixel of the whole image
-    b (numpy Array): A numpy array consisting of the b value of each pixel of the whole image
-    bg_mask (bool NumPy Array): A numpy array containing bools that act as the mask for the background
-    part_masks (bool numpy Array): list containing a numpy array consisting of bools that act as the mask for each of the parts
-    OUTPUTS:
-    normalized (list): A list containing tuples of arrays that represent the L, a, and b values of each pixel of each part but normalized
-    """
-    L_ref = np.median(L[bg_mask])
-    a_ref = np.median(a[bg_mask])
-    b_ref = np.median(b[bg_mask])
-
-    normalized = []
-    for pm in part_masks:
-        normalized.append((L[pm] - L_ref, a[pm] - a_ref, b[pm] - b_ref))
-    return normalized
-
 def compute_metrics(normalized_parts):
     """
     Computes the relevent responses from primary analysis form a list of parts with L a and b values dedicated to each

@@ -34,7 +34,7 @@ def show_results(
 
     ax2.imshow(binary, cmap='gray')
     ax2.set_title('Binary Part Mask')
-    ax2.axis('off')  # FIXED
+    ax2.axis('off')
 
     mask_combined = np.zeros(part_masks[0].shape, dtype=bool)
     for pm in part_masks:
@@ -64,6 +64,8 @@ def show_results(
 
     plt.tight_layout()
 
+    if save_path is not None:
+        fig.savefig(save_path)
     if return_fig:
         return fig
 

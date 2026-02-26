@@ -1,5 +1,8 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import streamlit as st
-from analysis_core import analyze_image_core
+from analysis_core import analyze_image_core_single
 
 st.set_page_config(page_title='Fastener Color Analysis', layout='wide')
 
@@ -11,7 +14,7 @@ if uploaded:
     st.image(uploaded, caption='Uploaded Image', use_column_width=True)
     if st.button('Run Analysis'):
         with st.spinner('Analyzing Image...'):
-            df, fig, annotated_buf = analyze_image_core(
+            df, fig, annotated_buf = analyze_image_core_single(
                 image_input = uploaded,
                 output_dir = None,
                 return_fig = True

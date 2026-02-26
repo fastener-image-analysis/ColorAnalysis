@@ -2,6 +2,7 @@ import io
 import os
 import numpy as np
 import gc
+import pandas as pd
 
 from utils import load_image, build_results_table
 from segmentation import (
@@ -13,14 +14,13 @@ from segmentation import (
 )
 from color_processing import (
     convert_to_lab,
-    lab_normalize_from_bg,
     linear_normalize_from_bg,
     get_lab_parts,
     compute_metrics
 )
 from visualization import show_results, save_numbered_parts_with_metrics
 
-def analyze_image_core(image_input, output_dir=None, return_fig=True):
+def analyze_image_core_single(image_input, output_dir=None, return_fig=True):
     """
     Core analysis code to take an image input and output the processing timeline as well as
     response variables for the color of parts within the image. To be used by any access method.
@@ -48,8 +48,7 @@ def analyze_image_core(image_input, output_dir=None, return_fig=True):
     
     L, a, b = convert_to_lab(norm_img)
 
-    #lab_norm_parts = lab_normalize_from_bg(L, a, b, bg_mask, part_masks) -- removed as it increases error
-    lab_parts = get_lab_parts(L, a, b, part_masks) # in use instead of lab_norm_parts
+    lab_parts = get_lab_parts(L, a, b, part_masks)
 
     blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(lab_parts)
 
@@ -102,12 +101,10 @@ def analyze_image_core_batch(image_input):
     bg_mask = compute_background(gray, part_masks)
     norm_img = linear_normalize_from_bg(img, bg_mask)
     L, a, b = convert_to_lab(img)
-    #lab_parts = lab_normalize_from_bg(L, a, b, bg_mask, part_masks) -- removed as it increases error
-    lab_parts = get_lab_parts(L, a, b, part_masks) # in use instead of lab_norm_parts
+    lab_parts = get_lab_parts(L, a, b, part_masks)
     blackness, color_shift, a_shift, b_shift, gloss = compute_metrics(lab_parts)
     df = build_results_table(blackness, color_shift, a_shift, b_shift, gloss)
 
-    # free big arrays before returning
     del img, gray, binary, thresh
     del labels, regions, regions_sorted, part_masks, bg_mask
     del L, a, b, lab_parts
@@ -116,6 +113,43 @@ def analyze_image_core_batch(image_input):
     gc.collect()
 
     return df
+
+def analyze_images_in_directory(image_directory, output_directory):
+    """
+    Batch runner: no figures, streams metrics to a single CSV.
+    """
+    os.makedirs(output_directory, exist_ok=True)
+    combined_path = os.path.join(output_directory, "combined_metrics.csv")
+    first_write = True
+
+    for filename in os.listdir(image_directory):
+        if filename.lower().endswith(('.jpg', '.png', '.jpeg')):
+            print("Processing:", filename)
+            image_path = os.path.join(image_directory, filename)
+
+            df = analyze_image_core_batch(image_path)
+
+            base = os.path.splitext(filename)[0]
+            df["group"] = base
+
+            # append to combined CSV incrementally
+            df.to_csv(
+                combined_path,
+                mode="a",
+                header=first_write,
+                index=False
+            )
+            first_write = False
+
+            # optional: also save per-image metrics
+            df.to_csv(
+                os.path.join(output_directory, f"{base}_metrics.csv"),
+                index=False
+            )
+
+            del df
+            gc.collect()
+
 
 
                                                                       
