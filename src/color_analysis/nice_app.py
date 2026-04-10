@@ -2,7 +2,7 @@ from nicegui import ui
 from io import BytesIO
 import base64
 import asyncio
-import analysis_core
+import color_analysis.analysis_core as analysis_core
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')

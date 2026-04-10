@@ -4,21 +4,21 @@ import numpy as np
 import gc
 import pandas as pd
 
-from utils import load_image, build_results_table
-from segmentation import (
+from .utils import load_image, build_results_table
+from .segmentation import (
     threshold_parts,
     extract_part_regions,
     sort_regions_l2r,
     regions_to_masks,
     compute_background
 )
-from color_processing import (
+from .color_processing import (
     convert_to_lab,
     linear_normalize_from_bg,
     get_lab_parts,
     compute_metrics
 )
-from visualization import show_results, save_numbered_parts_with_metrics
+from .visualization import show_results, save_numbered_parts_with_metrics
 
 def analyze_image_core_single(image_input, output_dir=None, return_fig=True):
     """

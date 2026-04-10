@@ -2,7 +2,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import os
-from analysis_core import analyze_images_in_directory, analyze_image_core_single
+from color_analysis.analysis_core import analyze_images_in_directory, analyze_image_core_single
 
 def main():
     print('Select mode:')

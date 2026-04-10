@@ -2,7 +2,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import streamlit as st
-from analysis_core import analyze_image_core_single
+from color_analysis.analysis_core import analyze_image_core_single
 
 st.set_page_config(page_title='Fastener Color Analysis', layout='wide')
 

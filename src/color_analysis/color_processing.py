@@ -1,6 +1,6 @@
 import numpy as np
 from skimage.color import rgb2lab
-from utils import linear_to_srgb, srgb_to_linear
+from .utils import linear_to_srgb, srgb_to_linear
 
 def linear_normalize_from_bg(image, bg_mask):
     """

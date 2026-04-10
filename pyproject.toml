@@ -1,14 +1,30 @@
 [project]
-name = "coloranalysis"
+name = "color_analysis"
 version = "0.1.0"
-description = "Add your description here"
+description = "Image segmentation and color analysis pipeline"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "matplotlib==3.8.4",
     "nicegui>=3.8.0",
-    "numpy>=2.4.2",
-    "pandas>=2.3.3",
+    "numpy>=2.0.0",
+    "pandas>=2.0.0",
+    "pytest>=9.0.3",
     "scikit-image>=0.26.0",
     "streamlit>=1.54.0",
 ]
+
+# --- Build system (REQUIRED for src layout) ---
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+# Tell setuptools where your package lives
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# --- Pytest config ---
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra -q"
